@@ -172,6 +172,58 @@ log4js提供了多个日志等级分类，同时也能替换console.log输出，
 <strong>3、log4js配置<strong>
 在config目录中，新建log_config.js
 ```
+var path = require('path');
+
+//日志根目录
+var baseLogPath = path.resolve(__dirname, '../logs')
+
+//错误日志目录
+var errorPath = "/error";
+//错误日志文件名
+var errorFileName = "error";
+//错误日志输出完整路径
+var errorLogPath = baseLogPath + errorPath + "/" + errorFileName;
+// var errorLogPath = path.resolve(__dirname, "../logs/error/error");
+
+
+//响应日志目录
+var responsePath = "/response";
+//响应日志文件名
+var responseFileName = "response";
+//响应日志输出完整路径
+var responseLogPath = baseLogPath + responsePath + "/" + responseFileName;
+// var responseLogPath = path.resolve(__dirname, "../logs/response/response");
+
+module.exports = {
+    "appenders":
+    [
+        //错误日志
+        {
+            "category":"errorLogger",             //logger名称
+            "type": "dateFile",                   //日志类型
+            "filename": errorLogPath,             //日志输出位置
+            "alwaysIncludePattern":true,          //是否总是有后缀名
+            "pattern": "-yyyy-MM-dd-hh.log",      //后缀，每小时创建一个新的日志文件
+            "path": errorPath                     //自定义属性，错误日志的根目录
+        },
+        //响应日志
+        {
+            "category":"resLogger",
+            "type": "dateFile",
+            "filename": responseLogPath,
+            "alwaysIncludePattern":true,
+            "pattern": "-yyyy-MM-dd-hh.log",
+            "path": responsePath  
+        }
+    ],
+    "levels":                                   //设置logger名称对应的的日志等级
+    {
+        "errorLogger":"ERROR",
+        "resLogger":"ALL"
+    },
+    "baseLogPath": baseLogPath                  //logs根目录
+}
+
 ```
 log_util.js
 ```
@@ -278,4 +330,61 @@ var formatReqLog = function (req, resTime) {
 }
 
 module.exports = logUtil;
+```
+修改app.js中的log
+```
+const logUtil = require('./utils/log_util');
+app.use(async (ctx, next) => {
+  //响应开始时间
+  const start = new Date();
+  //响应间隔时间
+  var ms;
+  try {
+    //开始进入到下一个中间件
+    await next();
+
+    ms = new Date() - start;
+    //记录响应日志
+    logUtil.logResponse(ctx, ms);
+
+  } catch (error) {
+
+    ms = new Date() - start;
+    //记录异常日志
+    logUtil.logError(ctx, error, ms);
+  }
+});
+```
+bin/www 中添加代码
+```
+var logConfig = require('../config/log_config');
+
+/**
+ * 确定目录是否存在，如果不存在则创建目录
+ */
+var confirmPath = function(pathStr) {
+
+  if(!fs.existsSync(pathStr)){
+      fs.mkdirSync(pathStr);
+      console.log('createPath: ' + pathStr);
+    }
+}
+
+/**
+ * 初始化log相关目录
+ */
+var initLogPath = function(){
+  //创建log的根目录'logs'
+  if(logConfig.baseLogPath){
+    confirmPath(logConfig.baseLogPath)
+    //根据不同的logType创建不同的文件目录
+    for(var i = 0, len = logConfig.appenders.length; i < len; i++){
+      if(logConfig.appenders[i].path){
+        confirmPath(logConfig.baseLogPath + logConfig.appenders[i].path);
+      }
+    }
+  }
+}
+
+initLogPath();
 ```
