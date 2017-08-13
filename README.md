@@ -1,4 +1,4 @@
-## 项目的搭建
+# 项目的搭建
 一开始搭建项目会云里雾里不知道从哪里入手，但是好在我们有项目生成工具，[koa-generator](https://github.com/17koa/koa-generator)<br/>
 1、我们安装生成工具
 ```
@@ -21,8 +21,8 @@ npm install
 npm start
 ```
 visit http://127.0.0.1:3000
-## 项目配置
-先来看看package.json文件
+# 项目配置
+## 先来看看package.json文件
 ```
 {
   "name": "hello-koa2",
@@ -54,7 +54,7 @@ visit http://127.0.0.1:3000
 
 ```
 我们从里面挑出两部分来看<br/>
-第一部分是script
+<strong>第一部分是script<strong>
 ```
 "scripts": {
     "start": "node bin/www",
@@ -70,7 +70,7 @@ node bin/www
 ```
 他会加载 `node bin/www` 文件<br/>
 有兴趣的可以去看一下这个模块.关于[npm scripts](http://www.ruanyifeng.com/blog/2016/10/npm_scripts.html)这里有阮一峰老师的文章，可以看一下<br/>
-第二部分是dependencies
+<strong>第二部分是dependencies<strong>
 ```
 "dependencies": {
     "debug": "^2.6.3",
@@ -87,7 +87,7 @@ node bin/www
   },
 ```
 这里表示的是已经安装的npm包的依赖，在文件中直接可以通风require引入<br/>
-<b>配置环境</b>
+## 配置环境
 可以使用node提供的process.env.NODE_DNV来设置<br/>
 我们可以来测试一下，<br/>
 在启动服务时输入指令
@@ -111,7 +111,7 @@ process.env.NODE_ENV=test
     "test": "NODE_ENV=test echo \"Error: no test specified\" && exit 1"
   },
 ```
-<b>配置文件</b><br/>
+## 配置文件
 创建config目录，储存配置文件，然后创建development.js 、test.js 、index.js文件<br/>
 development.js
 ```
