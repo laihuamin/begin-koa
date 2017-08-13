@@ -86,4 +86,71 @@ node bin/www
     "pug": "^2.0.0-rc.1"
   },
 ```
-这里表示的是已经安装的npm包的依赖，在文件中直接可以通风require引入
+这里表示的是已经安装的npm包的依赖，在文件中直接可以通风require引入<br/>
+<b>配置环境</b>
+可以使用node提供的process.env.NODE_DNV来设置<br/>
+我们可以来测试一下，<br/>
+在启动服务时输入指令
+```
+NODE_ENV=test npm start
+```
+我们可以在bin/www文件中添加配置
+```
+console.log("process.env.NODE_ENV=" + process.env.NODE_ENV);
+```
+然后终端中就会输出
+```
+process.env.NODE_ENV=test
+```
+所以我们可以在script标签中把环境配置好
+```
+"scripts": {
+    "start": "NODE_ENV=development node bin/www",
+    "dev": "./node_modules/.bin/nodemon bin/www",
+    "prd": "pm2 start bin/www",
+    "test": "NODE_ENV=test echo \"Error: no test specified\" && exit 1"
+  },
+```
+<b>配置文件</b><br/>
+创建config目录，储存配置文件，然后创建development.js 、test.js 、index.js文件<br/>
+development.js
+```
+module.exports = {
+    env: 'development',  //开发环境
+    port: '3001', //监听端口
+    mongodb_url: '', //数据库地址
+    redis_url: '', //redis地址
+    redis_port: '' //redis端口
+}
+```
+test.js
+```
+module.exports = {
+    env: 'test',  //测试环境
+    port: '3002', //监听端口
+    mongodb_url: '', //数据库地址
+    redis_url: '', //redis地址
+    redis_port: '' //redis端口
+}
+```
+index.js
+```
+const development_env = require('./development.js');
+const test_env = require('./test.js');
+
+module.exports = {
+    development: development_env,
+    test: test_env
+}[process.env.NODE_ENV || 'development']
+```
+环境的配置文件已经准备完毕<br/>
+接下来我们要配置一下 bin/www文件，添加如下代码
+```
+const config = require('../config');
+console.log('port=' + config.port);
+```
+然后运行npm start 看一下终端的输出
+```
+port=3001
+process.env.NODE_ENV=development
+```
