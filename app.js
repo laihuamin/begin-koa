@@ -1,16 +1,21 @@
 const Koa = require('koa')
 const app = new Koa()
+const session = require('koa-session')
 const views = require('koa-views')
 const json = require('koa-json')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
-const logUtil = require('./utils/log_util');
+const logUtil = require('./utils/log_util')
 
 const index = require('./routes/index')
-const users = require('./routes/users')
+const users = require('.routes/users')
+const config = require('./config/default.js');
 
 // error handler
 onerror(app)
+
+// session
+app.use(session(config.session, app))
 
 // middlewares
 app.use(bodyparser({
